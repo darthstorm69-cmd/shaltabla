@@ -2,14 +2,18 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import FriendRankList from '@/components/FriendRankList';
 import TickerTape from '@/components/TickerTape';
-import { fetchFriends } from '@/lib/api';
+import { fetchFriends, createFriend } from '@/lib/api';
 import { Friend } from '@/lib/types';
+import { Plus } from 'lucide-react';
 
 export default function Home() {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tickerMessages, setTickerMessages] = useState<string[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newFriendName, setNewFriendName] = useState('');
+  const [addingFriend, setAddingFriend] = useState(false);
 
   useEffect(() => {
     loadFriends();
@@ -33,6 +37,25 @@ export default function Home() {
     setTickerMessages(prev => [...prev, message]);
   };
 
+  const handleAddFriend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFriendName.trim() || addingFriend) return;
+
+    try {
+      setAddingFriend(true);
+      await createFriend(newFriendName.trim());
+      setNewFriendName('');
+      setShowAddForm(false);
+      // Reload friends list
+      await loadFriends();
+    } catch (err: any) {
+      console.error('Failed to add friend:', err);
+      setError(err.message || 'Failed to add friend');
+    } finally {
+      setAddingFriend(false);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -48,9 +71,55 @@ export default function Home() {
       <main className="min-h-screen bg-[#0f0f0f]">
         <div className="container mx-auto px-3 md:px-4 py-4 md:py-6 lg:py-8 max-w-5xl">
           {/* Header */}
-          <div className="mb-4 md:mb-6 flex items-center justify-between">
-            <h1 className="text-xl md:text-2xl font-semibold text-white">Shaltabla</h1>
-            <span className="text-xs md:text-sm text-gray-400">Live Rankings</span>
+          <div className="mb-4 md:mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h1 className="text-xl md:text-2xl font-semibold text-white">Shaltabla</h1>
+              <div className="flex items-center gap-3">
+                <span className="text-xs md:text-sm text-gray-400 hidden sm:inline">Live Rankings</span>
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs md:text-sm bg-[#1a1a1a] border border-[#2a2a2a] text-gray-300 rounded hover:bg-[#222222] hover:border-[#3a3a3a] transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Add Friend</span>
+                  <span className="sm:hidden">Add</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Add Friend Form */}
+            {showAddForm && (
+              <form onSubmit={handleAddFriend} className="mb-4 p-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newFriendName}
+                    onChange={(e) => setNewFriendName(e.target.value)}
+                    placeholder="Enter friend's name"
+                    className="flex-1 px-3 py-2 bg-[#0f0f0f] border border-[#2a2a2a] text-white text-sm rounded focus:outline-none focus:border-[#3a3a3a]"
+                    disabled={addingFriend}
+                    autoFocus
+                  />
+                  <button
+                    type="submit"
+                    disabled={!newFriendName.trim() || addingFriend}
+                    className="px-4 py-2 bg-[#2a2a2a] text-white text-sm rounded hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {addingFriend ? 'Adding...' : 'Add'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddForm(false);
+                      setNewFriendName('');
+                    }}
+                    className="px-3 py-2 text-gray-400 text-sm rounded hover:text-white hover:bg-[#222222] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
 
           {/* Ticker Tape */}

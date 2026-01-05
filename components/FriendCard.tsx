@@ -14,19 +14,19 @@ const FriendCard = memo(({ friend, index }: FriendCardProps) => {
   const movedDown = rankChanged && friend.previousRank! < friend.rank;
 
   return (
-    <div className="flex items-center py-3 px-4 border-b border-[#2a2a2a] hover:bg-[#222222] transition-colors">
+    <div className="flex items-center py-2 md:py-3 px-2 md:px-4 border-b border-[#2a2a2a] hover:bg-[#222222] transition-colors">
       {/* Rank */}
-      <div className="w-12 flex-shrink-0">
-        <span className="text-sm text-gray-400">{friend.rank}</span>
+      <div className="w-8 md:w-12 flex-shrink-0">
+        <span className="text-xs md:text-sm text-gray-400">{friend.rank}</span>
       </div>
 
       {/* Friend Name */}
-      <div className="flex-1 min-w-0">
-        <div className="text-white text-sm font-medium">{friend.name}</div>
+      <div className="flex-1 min-w-0 mr-2">
+        <div className="text-white text-xs md:text-sm font-medium truncate">{friend.name}</div>
       </div>
 
-      {/* Chart */}
-      <div className="w-40 flex-shrink-0 px-3">
+      {/* Chart - Hidden on mobile, visible on tablet+ */}
+      <div className="hidden md:block w-32 lg:w-40 flex-shrink-0 px-2 lg:px-3">
         {friend.pointHistory && friend.pointHistory.length > 0 ? (
           <MiniChart data={friend.pointHistory} />
         ) : (
@@ -37,17 +37,17 @@ const FriendCard = memo(({ friend, index }: FriendCardProps) => {
       </div>
 
       {/* Points */}
-      <div className="w-32 text-right flex-shrink-0">
-        <span className="text-sm text-gray-300">{friend.points.toLocaleString()}</span>
+      <div className="w-20 md:w-32 text-right flex-shrink-0">
+        <span className="text-xs md:text-sm text-gray-300">{friend.points.toLocaleString()}</span>
       </div>
 
       {/* Rank Change Indicator */}
-      <div className="w-8 flex-shrink-0 flex justify-end">
+      <div className="w-6 md:w-8 flex-shrink-0 flex justify-end ml-1">
         {rankChanged && movedUp && (
-          <ArrowUp className="w-3.5 h-3.5 text-green-500" />
+          <ArrowUp className="w-3 md:w-3.5 h-3 md:h-3.5 text-green-500" />
         )}
         {rankChanged && movedDown && (
-          <ArrowDown className="w-3.5 h-3.5 text-red-500" />
+          <ArrowDown className="w-3 md:w-3.5 h-3 md:h-3.5 text-red-500" />
         )}
       </div>
     </div>

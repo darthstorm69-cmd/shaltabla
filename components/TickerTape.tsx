@@ -52,7 +52,7 @@ const TickerTape = ({ memberCount, messages = [] }: TickerTapeProps) => {
   const fullContent = [...tickerContent, ...tickerContent, ...tickerContent];
 
   return (
-    <div className="relative w-full overflow-hidden border-t border-b border-[#2a2a2a] py-2">
+    <div className="relative w-full overflow-hidden border-t border-b border-[#2a2a2a] py-1.5 md:py-2">
       <div
         ref={tickerRef}
         className="flex whitespace-nowrap animate-scroll"
@@ -61,7 +61,7 @@ const TickerTape = ({ memberCount, messages = [] }: TickerTapeProps) => {
         }}
       >
         {fullContent.map((text, index) => (
-          <span key={index} className="text-xs text-gray-400 mr-20">
+          <span key={index} className="text-xs text-gray-400 mr-12 md:mr-20">
             {text}
           </span>
         ))}

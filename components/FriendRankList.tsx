@@ -167,20 +167,21 @@ const FriendRankList = ({ friends, onPointChange }: FriendRankListProps) => {
   return (
     <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg overflow-hidden">
       {/* Table Header */}
-      <div className="flex items-center py-3 px-4 border-b border-[#2a2a2a] bg-[#1a1a1a]">
-        <div className="w-12 flex-shrink-0">
+      <div className="flex items-center py-2 md:py-3 px-2 md:px-4 border-b border-[#2a2a2a] bg-[#1a1a1a] min-w-0">
+        <div className="w-8 md:w-12 flex-shrink-0">
           <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Rank</span>
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 mr-2">
           <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Name</span>
         </div>
-        <div className="w-40 flex-shrink-0 px-3">
+        {/* Chart header - Hidden on mobile */}
+        <div className="hidden md:block w-32 lg:w-40 flex-shrink-0 px-2 lg:px-3">
           <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Chart</span>
         </div>
-        <div className="w-32 text-right flex-shrink-0">
+        <div className="w-20 md:w-32 text-right flex-shrink-0">
           <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Points</span>
         </div>
-        <div className="w-8 flex-shrink-0"></div>
+        <div className="w-6 md:w-8 flex-shrink-0"></div>
       </div>
 
       {/* Table Body */}

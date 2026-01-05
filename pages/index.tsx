@@ -46,11 +46,11 @@ export default function Home() {
       </Head>
 
       <main className="min-h-screen bg-[#0f0f0f]">
-        <div className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
+        <div className="container mx-auto px-3 md:px-4 py-4 md:py-6 lg:py-8 max-w-5xl">
           {/* Header */}
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-2xl font-semibold text-white">Shaltabla</h1>
-            <span className="text-sm text-gray-400">Live Rankings</span>
+          <div className="mb-4 md:mb-6 flex items-center justify-between">
+            <h1 className="text-xl md:text-2xl font-semibold text-white">Shaltabla</h1>
+            <span className="text-xs md:text-sm text-gray-400">Live Rankings</span>
           </div>
 
           {/* Ticker Tape */}

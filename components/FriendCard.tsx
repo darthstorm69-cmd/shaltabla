@@ -6,10 +6,11 @@ import MiniChart from './MiniChart';
 interface FriendCardProps {
   friend: FriendWithPosition;
   index: number;
+  chartData?: number[];
   onClick?: (friend: FriendWithPosition) => void;
 }
 
-const FriendCard = memo(({ friend, index, onClick }: FriendCardProps) => {
+const FriendCard = memo(({ friend, index, chartData, onClick }: FriendCardProps) => {
   const rankChanged = friend.previousRank !== undefined && friend.previousRank !== friend.rank;
   const movedUp = rankChanged && friend.previousRank! > friend.rank;
   const movedDown = rankChanged && friend.previousRank! < friend.rank;
@@ -37,8 +38,8 @@ const FriendCard = memo(({ friend, index, onClick }: FriendCardProps) => {
 
       {/* Chart - Hidden on mobile, visible on tablet+ */}
       <div className="hidden md:block w-32 lg:w-40 flex-shrink-0 px-2 lg:px-3">
-        {friend.pointHistory && friend.pointHistory.length > 0 ? (
-          <MiniChart data={friend.pointHistory} />
+        {(chartData && chartData.length > 0) || (friend.pointHistory && friend.pointHistory.length > 0) ? (
+          <MiniChart data={chartData || friend.pointHistory || []} />
         ) : (
           <div className="w-full h-10 flex items-center justify-center">
             <span className="text-xs text-gray-500">—</span>

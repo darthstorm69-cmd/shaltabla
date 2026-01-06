@@ -198,11 +198,11 @@ const FriendRankList = ({ friends, onPointChange, timeframe = '1m', onFriendClic
           } else if (roll < 0.95) {
             // 5%: Large changes (±2000 to ±3000) - significant spikes
             change = (Math.random() - 0.5) * 2000 + (Math.random() < 0.5 ? 2000 : -2000);
-          } else if (roll < 0.98) {
-            // 2%: Extreme changes (±4000+) - rare events
+          } else if (roll < 0.999) {
+            // 4.9%: Extreme changes (±4000+) - rare events
             change = (Math.random() - 0.5) * 4000 + (Math.random() < 0.5 ? 4000 : -4000);
           } else {
-            // 2%: Very rare instant 0/10k jumps
+            // 0.1%: Extremely rare instant 0/10k jumps (20x rarer than before)
             return Math.random() < 0.5 ? -currentPoints : (10000 - currentPoints);
           }
           
@@ -216,12 +216,34 @@ const FriendRankList = ({ friends, onPointChange, timeframe = '1m', onFriendClic
             change = Math.random() < 0.5 ? Math.abs(change) : -Math.abs(change);
           }
           
-          // Boundary handling: reduce extreme moves when near limits
+          // Make maintaining 10k extremely difficult (decay effect)
+          if (currentPoints >= 10000) {
+            // 90% chance of dropping from 10k
+            if (Math.random() < 0.9) {
+              change = -Math.abs(change); // Force negative
+            }
+          }
+          
+          // Add resistance near 10k cap (gravity effect)
+          if (currentPoints > 9500) {
+            // 95% chance of negative change when above 9500
+            if (Math.random() < 0.95 && change > 0) {
+              change = -Math.abs(change); // Force negative
+            }
+            // Also reduce magnitude of any positive changes by 90%
+            if (change > 0) {
+              change = change * 0.1;
+            }
+          } else if (currentPoints > 9000) {
+            // 80% chance of negative change when above 9000
+            if (Math.random() < 0.8 && change > 0) {
+              change = -Math.abs(change); // Force negative
+            }
+          }
+          
+          // Boundary handling: reduce extreme moves when near 0
           if (currentPoints < 500 && change < -1000) {
             change = change * 0.5; // Reduce large negative moves near 0
-          }
-          if (currentPoints > 9500 && change > 1000) {
-            change = change * 0.5; // Reduce large positive moves near 10k
           }
           
           return Math.round(change);
@@ -331,19 +353,54 @@ const FriendRankList = ({ friends, onPointChange, timeframe = '1m', onFriendClic
 
       {/* Table Body */}
       <div>
-        {shuffledFriends.map((friend, index) => (
-          <FriendCard 
-            key={friend.id} 
-            friend={friend} 
-            index={index}
-            onClick={(f) => {
-              if (onFriendClick) {
-                const snapshots = snapshotsRef.current[f.id] || [];
-                onFriendClick(f, snapshots);
-              }
-            }}
-          />
-        ))}
+        {shuffledFriends.map((friend, index) => {
+          // Filter snapshots based on selected timeframe for mini chart
+          const getTimeframeMs = (tf: Timeframe): number => {
+            switch (tf) {
+              case '15s': return 15000;
+              case '1m': return 60000;
+              case '5m': return 300000;
+              case '10m': return 600000;
+              case '1h': return 3600000;
+              case 'all': return Infinity;
+              default: return 60000;
+            }
+          };
+          
+          const timeframeMs = getTimeframeMs(timeframe);
+          const now = Date.now();
+          const snapshots = snapshotsRef.current[friend.id] || [];
+          
+          let filteredSnapshots: PointSnapshot[] = [];
+          if (timeframe === 'all' || snapshots.length === 0) {
+            filteredSnapshots = snapshots;
+          } else {
+            const targetTime = now - timeframeMs;
+            filteredSnapshots = snapshots.filter(s => s.timestamp >= targetTime);
+            // If no snapshots in timeframe, use the most recent ones (up to 10)
+            if (filteredSnapshots.length === 0 && snapshots.length > 0) {
+              filteredSnapshots = snapshots.slice(-10);
+            }
+          }
+          
+          // Convert to point values for mini chart (limit to 10 for performance)
+          const chartData = filteredSnapshots.slice(-10).map(s => s.points);
+          
+          return (
+            <FriendCard 
+              key={friend.id} 
+              friend={friend} 
+              index={index}
+              chartData={chartData.length > 0 ? chartData : friend.pointHistory}
+              onClick={(f) => {
+                if (onFriendClick) {
+                  const allSnapshots = snapshotsRef.current[f.id] || [];
+                  onFriendClick(f, allSnapshots);
+                }
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );

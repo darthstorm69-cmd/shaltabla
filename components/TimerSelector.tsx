@@ -36,3 +36,4 @@ const TimerSelector = ({ selectedTimeframe, onTimeframeChange }: TimerSelectorPr
 
 export default TimerSelector;
 
+

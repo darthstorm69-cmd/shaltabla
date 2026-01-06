@@ -3,8 +3,9 @@ import Head from 'next/head';
 import FriendRankList from '@/components/FriendRankList';
 import TickerTape from '@/components/TickerTape';
 import TimerSelector from '@/components/TimerSelector';
+import UserDetailModal from '@/components/UserDetailModal';
 import { fetchFriends, createFriend } from '@/lib/api';
-import { Friend, Timeframe } from '@/lib/types';
+import { Friend, Timeframe, FriendWithPosition, PointSnapshot } from '@/lib/types';
 import { Plus } from 'lucide-react';
 
 export default function Home() {
@@ -19,6 +20,9 @@ export default function Home() {
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>('1m');
+  const [selectedFriend, setSelectedFriend] = useState<FriendWithPosition | null>(null);
+  const [selectedFriendSnapshots, setSelectedFriendSnapshots] = useState<PointSnapshot[]>([]);
+  const [showUserDetail, setShowUserDetail] = useState(false);
 
   useEffect(() => {
     loadFriends();
@@ -157,10 +161,23 @@ export default function Home() {
                     >
                       Cancel
                     </button>
-                  </div>
-                </form>
-              </div>
-            )}
+          </div>
+        </form>
+      </div>
+    )}
+
+    {/* User Detail Modal */}
+    {showUserDetail && (
+      <UserDetailModal
+        friend={selectedFriend}
+        snapshots={selectedFriendSnapshots}
+        onClose={() => {
+          setShowUserDetail(false);
+          setSelectedFriend(null);
+          setSelectedFriendSnapshots([]);
+        }}
+      />
+    )}
 
             {/* Add Friend Form */}
             {showAddForm && isAuthenticated && (
@@ -228,6 +245,11 @@ export default function Home() {
               friends={friends} 
               onPointChange={handlePointChange}
               timeframe={selectedTimeframe}
+              onFriendClick={(friend, snapshots) => {
+                setSelectedFriend(friend);
+                setSelectedFriendSnapshots(snapshots);
+                setShowUserDetail(true);
+              }}
             />
           )}
         </div>

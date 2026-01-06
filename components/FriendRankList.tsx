@@ -7,9 +7,10 @@ interface FriendRankListProps {
   friends: Friend[];
   onPointChange?: (message: string) => void;
   timeframe?: Timeframe;
+  onFriendClick?: (friend: FriendWithPosition, snapshots: PointSnapshot[]) => void;
 }
 
-const FriendRankList = ({ friends, onPointChange, timeframe = '1m' }: FriendRankListProps) => {
+const FriendRankList = ({ friends, onPointChange, timeframe = '1m', onFriendClick }: FriendRankListProps) => {
   const [shuffledFriends, setShuffledFriends] = useState<FriendWithPosition[]>([]);
   const [pointHistory, setPointHistory] = useState<Record<string, number[]>>({});
   const [historicalSnapshots, setHistoricalSnapshots] = useState<Record<string, PointSnapshot[]>>({});
@@ -331,7 +332,17 @@ const FriendRankList = ({ friends, onPointChange, timeframe = '1m' }: FriendRank
       {/* Table Body */}
       <div>
         {shuffledFriends.map((friend, index) => (
-          <FriendCard key={friend.id} friend={friend} index={index} />
+          <FriendCard 
+            key={friend.id} 
+            friend={friend} 
+            index={index}
+            onClick={(f) => {
+              if (onFriendClick) {
+                const snapshots = snapshotsRef.current[f.id] || [];
+                onFriendClick(f, snapshots);
+              }
+            }}
+          />
         ))}
       </div>
     </div>

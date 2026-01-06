@@ -6,15 +6,25 @@ import MiniChart from './MiniChart';
 interface FriendCardProps {
   friend: FriendWithPosition;
   index: number;
+  onClick?: (friend: FriendWithPosition) => void;
 }
 
-const FriendCard = memo(({ friend, index }: FriendCardProps) => {
+const FriendCard = memo(({ friend, index, onClick }: FriendCardProps) => {
   const rankChanged = friend.previousRank !== undefined && friend.previousRank !== friend.rank;
   const movedUp = rankChanged && friend.previousRank! > friend.rank;
   const movedDown = rankChanged && friend.previousRank! < friend.rank;
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick(friend);
+    }
+  };
+
   return (
-    <div className="flex items-center py-2 md:py-3 px-2 md:px-4 border-b border-[#2a2a2a] hover:bg-[#222222] transition-colors">
+    <div 
+      className={`flex items-center py-2 md:py-3 px-2 md:px-4 border-b border-[#2a2a2a] hover:bg-[#222222] transition-colors ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={handleClick}
+    >
       {/* Rank */}
       <div className="w-8 md:w-12 flex-shrink-0">
         <span className="text-xs md:text-sm text-gray-400">{friend.rank}</span>

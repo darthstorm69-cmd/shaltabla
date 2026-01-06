@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import FriendRankList from '@/components/FriendRankList';
 import TickerTape from '@/components/TickerTape';
+import TimerSelector from '@/components/TimerSelector';
 import { fetchFriends, createFriend } from '@/lib/api';
-import { Friend } from '@/lib/types';
+import { Friend, Timeframe } from '@/lib/types';
 import { Plus } from 'lucide-react';
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>('1m');
 
   useEffect(() => {
     loadFriends();
@@ -107,6 +109,10 @@ export default function Home() {
             <div className="flex items-center justify-between mb-3">
               <h1 className="text-xl md:text-2xl font-semibold text-white">Shaltabla</h1>
               <div className="flex items-center gap-3">
+                <TimerSelector 
+                  selectedTimeframe={selectedTimeframe} 
+                  onTimeframeChange={setSelectedTimeframe} 
+                />
                 <span className="text-xs md:text-sm text-gray-400 hidden sm:inline">Live Rankings</span>
                 <button
                   onClick={handleAddFriendClick}
@@ -218,7 +224,11 @@ export default function Home() {
 
           {/* Friend List */}
           {!loading && !error && (
-            <FriendRankList friends={friends} onPointChange={handlePointChange} />
+            <FriendRankList 
+              friends={friends} 
+              onPointChange={handlePointChange}
+              timeframe={selectedTimeframe}
+            />
           )}
         </div>
       </main>

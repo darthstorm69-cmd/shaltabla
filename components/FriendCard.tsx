@@ -38,7 +38,19 @@ const FriendCard = memo(({ friend, index }: FriendCardProps) => {
 
       {/* Points */}
       <div className="w-20 md:w-32 text-right flex-shrink-0">
-        <span className="text-xs md:text-sm text-gray-300">{friend.points.toLocaleString()}</span>
+        <div className="flex flex-col items-end">
+          <span className="text-xs md:text-sm text-gray-300">{friend.points.toLocaleString()}</span>
+          {friend.percentageChange !== undefined && (
+            <span
+              className={`text-xs ${
+                friend.percentageChange >= 0 ? 'text-green-500' : 'text-red-500'
+              }`}
+            >
+              {friend.percentageChange >= 0 ? '+' : ''}
+              {friend.percentageChange.toFixed(1)}%
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Rank Change Indicator */}

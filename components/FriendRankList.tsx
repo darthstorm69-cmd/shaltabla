@@ -120,7 +120,8 @@ const FriendRankList = ({ friends, onPointChange, timeframe = '1m' }: FriendRank
           : 0,
       }))
     );
-  }, [timeframe, shuffledFriends.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeframe]);
 
   useEffect(() => {
     isMountedRef.current = true;

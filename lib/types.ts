@@ -8,9 +8,10 @@ export interface Friend {
   pointHistory?: PointSnapshot[];
 }
 
-export interface FriendWithPosition extends Friend {
+export interface FriendWithPosition extends Omit<Friend, 'pointHistory'> {
   previousRank?: number;
-  pointHistory?: number[];
+  pointHistory?: number[]; // For mini chart (simplified array of numbers)
+  pointHistorySnapshots?: PointSnapshot[]; // Full history with timestamps
   percentageChange?: number;
 }
 

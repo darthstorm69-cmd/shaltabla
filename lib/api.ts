@@ -1,6 +1,12 @@
-import { Friend } from './types';
+import { Friend, PointSnapshot } from './types';
 
 const API_BASE = '/api';
+
+export interface BatchUpdateItem {
+  id: string;
+  points: number;
+  pointHistory: PointSnapshot[];
+}
 
 export async function fetchFriends(): Promise<Friend[]> {
   const response = await fetch(`${API_BASE}/friends`);

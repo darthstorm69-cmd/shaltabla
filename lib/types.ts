@@ -5,6 +5,7 @@ export interface Friend {
   name: string;
   points: number;
   rank: number;
+  pointHistory?: PointSnapshot[];
 }
 
 export interface FriendWithPosition extends Friend {

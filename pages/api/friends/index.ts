@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabase, DatabaseFriend } from '@/lib/supabase';
-import { Friend } from '@/lib/types';
+import { Friend, PointSnapshot } from '@/lib/types';
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,12 +17,28 @@ export default async function handler(
         throw error;
       }
 
-      const friends: Friend[] = (data || []).map((dbFriend: DatabaseFriend) => ({
-        id: dbFriend.id,
-        name: dbFriend.name,
-        points: dbFriend.points,
-        rank: 0, // Will be calculated on frontend
-      }));
+      const friends: Friend[] = (data || []).map((dbFriend: DatabaseFriend) => {
+        // Parse point_history from JSONB
+        let pointHistory: PointSnapshot[] = [];
+        if (dbFriend.point_history) {
+          try {
+            pointHistory = Array.isArray(dbFriend.point_history) 
+              ? dbFriend.point_history 
+              : JSON.parse(dbFriend.point_history as any);
+          } catch (e) {
+            console.error('Error parsing point_history:', e);
+            pointHistory = [];
+          }
+        }
+        
+        return {
+          id: dbFriend.id,
+          name: dbFriend.name,
+          points: dbFriend.points,
+          rank: 0, // Will be calculated on frontend
+          pointHistory, // Include historical data
+        };
+      });
 
       res.status(200).json({ friends });
     } catch (error: any) {

@@ -41,6 +41,8 @@ brew install node
 4. **Set up the database**:
    - Go to SQL Editor in Supabase
    - Run the SQL from `supabase-setup.sql` to create the `friends` table
+   - Run the SQL from `supabase-migration.sql` to add persistence features (point_history, daily reset function)
+   - (Optional) Run `supabase-reset-points.sql` to reset all friends to 0 points for fresh progression
 
 5. **Configure environment variables**:
    ```bash

@@ -88,3 +88,4 @@ const FullChart = ({ snapshots }: FullChartProps) => {
 export default FullChart;
 
 
+

@@ -190,3 +190,4 @@ const UserDetailModal = ({ friend, snapshots, onClose }: UserDetailModalProps) =
 export default UserDetailModal;
 
 
+

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Friend, FriendWithPosition, Timeframe, PointSnapshot } from '@/lib/types';
-import { updateFriendPoints } from '@/lib/api';
+import { batchUpdateFriends } from '@/lib/api';
 import FriendCard from './FriendCard';
 
 interface FriendRankListProps {
@@ -30,30 +30,38 @@ const FriendRankList = ({ friends, onPointChange, timeframe = '1m', onFriendClic
   }, [friends]);
 
   useEffect(() => {
-    // Initial load - initialize point history for each friend
+    // Initial load - initialize point history from database or current points
     const initialHistory: Record<string, number[]> = {};
     const initialBaseline: Record<string, number> = {};
     const now = Date.now();
     
     sortedFriends.forEach(friend => {
-      // Initialize with variation around current points
       const basePoints = friend.points;
-      const history = Array.from({ length: 10 }, (_, i) => {
-        // Generate gradual variation around current points
-        const variation = (Math.random() - 0.5) * 200;
-        return Math.max(0, Math.min(10000, basePoints + variation));
-      });
-      history[history.length - 1] = basePoints; // Last point is current actual points
-      initialHistory[friend.id] = history;
       
-      // Set baseline for timeframe calculation
+      // Use point history from database if available
+      let snapshots: PointSnapshot[] = [];
+      if (friend.pointHistory && friend.pointHistory.length > 0) {
+        snapshots = friend.pointHistory;
+      } else {
+        // Fallback: initialize with current points
+        snapshots = [{ points: basePoints, timestamp: now }];
+      }
+      
+      // Convert snapshots to point history array for mini chart (last 10)
+      const history = snapshots.slice(-10).map(s => s.points);
+      if (history.length === 0) {
+        history.push(basePoints);
+      }
+      
+      initialHistory[friend.id] = history;
       initialBaseline[friend.id] = basePoints;
       
-      // Initialize snapshot
-      snapshotsRef.current[friend.id] = [{ points: basePoints, timestamp: now }];
+      // Store snapshots in ref
+      snapshotsRef.current[friend.id] = snapshots;
     });
     
     setPointHistory(initialHistory);
+    setHistoricalSnapshots(snapshotsRef.current);
     historyRef.current = initialHistory;
     baselineRef.current = initialBaseline;
     setTimeframeBaseline(initialBaseline);
@@ -273,11 +281,6 @@ const FriendRankList = ({ friends, onPointChange, timeframe = '1m', onFriendClic
             onPointChange(message);
           }
           
-          // Save to database (fire and forget - don't block UI)
-          updateFriendPoints(friend.id, newPoint).catch(error => {
-            console.error(`Failed to update points for ${friend.name}:`, error);
-          });
-          
           // Update point history for chart
           const currentHistory = updatedHistory[friend.id] || [];
           const newHistory = [...currentHistory.slice(-9), newPoint];
@@ -311,6 +314,18 @@ const FriendRankList = ({ friends, onPointChange, timeframe = '1m', onFriendClic
         
         snapshotsRef.current = updatedSnapshots;
         setHistoricalSnapshots(updatedSnapshots);
+        
+        // Batch update all friends in a single API call
+        const batchUpdates = updatedFriends.map(friend => ({
+          id: friend.id,
+          points: friend.points,
+          pointHistory: updatedSnapshots[friend.id] || [],
+        }));
+        
+        // Save to database (fire and forget - don't block UI)
+        batchUpdateFriends(batchUpdates).catch(error => {
+          console.error('Failed to batch update friends:', error);
+        });
         
         // Sort by points (descending) to assign correct ranks
         updatedFriends.sort((a, b) => b.points - a.points);

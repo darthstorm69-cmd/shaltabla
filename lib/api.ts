@@ -41,4 +41,19 @@ export async function updateFriendPoints(id: string, points: number): Promise<Fr
   return data.friend;
 }
 
+export async function batchUpdateFriends(updates: BatchUpdateItem[]): Promise<Friend[]> {
+  const response = await fetch(`${API_BASE}/friends/batch-update`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ updates }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to batch update friends');
+  }
+  const data = await response.json();
+  return data.friends;
+}
+
 
